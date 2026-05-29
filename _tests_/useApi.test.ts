@@ -24,7 +24,24 @@ describe('useApi hook', () => {
     test('initiate with loading state', async () => {
         const { result } = renderHook(() => useApi());
         expect(result.current.loading).toBe(true);
-        await waitFor(() => expect(result.current.loading).toBe(true));
+        await waitFor(() => expect(result.current.loading).toBe(false));
+    });
+    test('fetch data correctly', async () => {
+        const { result } = renderHook(() => useApi());
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+            expect(result.current.data[0].id).toBe(2);
+            expect(result.current.data[0].name).toBe('Michael Williams');
+
+        });
+    });
+    test('handles error fetch correctly', async () => {
+        (global.fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('Network error')));
+        const { result } = renderHook(() => useApi());
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+            expect(result.current.error).toBe(true);
+        })
     });
 
 })
